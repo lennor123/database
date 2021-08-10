@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+
+123
+<div align="left">
+    <table>
+        <tr>
+            <td>
+                <table border="1">
+                    <tr>
+                        <td>{{repsitory.repository}}</td>
+                        <td>{{repsitory.host}}</td>
+                        <td>{{repsitory.port}}</td>
+                        <td>{{repsitory.type}}</td>
+                    </tr>
+                </table>
+            </td>
+
+            <td rowspan="2">
+                <table border="1">
+                    <tr>
+                        <th>Data model name</th>
+                        <th>Repository</th>
+                    </tr>
+                    <tr ng-repeat="a in dataModel">
+                        <td><button ng-click="show(a.id)">{{a.dataModelName}}</button></td>
+                        <td>{{a.repository}}</td>
+                        <td hidden = "true">{{a.id}}</td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table border="1">
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Field Type</th>
+                    </tr>
+                    <tr ng-repeat="a in field">
+                        <td>{{a.fieldName}}</button></td>
+                        <td>{{a.fieldType}}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+
+    </table>
+</div>
+
+
+
+
+
+<script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
+<script src="https://cdn.staticfile.org/angular.js/1.7.0/angular-route.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    var app = angular.module("myApp",[]);
+    app.config(['$locationProvider', function($locationProvider) {
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        });
+    }]);
+    app.controller("myCtrl", function ($scope, $http, $location){
+        // $scope.str = angular.isString(id);
+        var id = $location.search().id;
+        var repositoryId = $location.search().repositoryId;
+
+        $http({
+            method:'post',
+            url:"/findRepositoryInfo",
+            data:{strId : repositoryId},
+        }).then(function success(result){
+                $scope.repsitory=result.data;
+            },
+        );
+        $http({
+            method:'get',
+            url:"/findDataModelInfo",
+        }).then(function success(result){
+                $scope.dataModel=result.data;
+            },
+        );
+        $scope.show = function (id){
+            $http({
+                method:'get',
+                params: {id : id},
+                url:"/findFieldInfo"
+            }).then(function success(result2){
+                $scope.field=result2.data;
+            });
+        }
+        // $http({
+        //     method:'post',
+        //     url:"/findFieldsInfo",
+        //     data:{strId : id}
+        // }).then(function success(result){
+        //         $scope.field=result.data;
+        //     },
+        // );
+    });
+</script>
+</body>
+
+</html>

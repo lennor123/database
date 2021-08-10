@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+    <div>
+        <table border="1" width="500px" align="center">
+            <tr>
+                <td  hidden = "true">id</td>
+                <td>连接名</td>
+                <td>数据库类型</td>
+                <td>主机地址</td>
+                <td>端口号</td>
+                <td>数据库名称</td>
+                <td>密码</td>
+                <td>用户</td>
+                <td>操作</td>
+            </tr>
+            <tr ng-repeat=" a in arr">
+
+                <td  hidden = "true">{{a.id}}</td>
+                <td>{{a.repository}}</td>
+                <td>{{a.type}}</td>
+                <td>{{a.host}}</td>
+                <td>{{a.port}}</td>
+                <td>{{a.databaseName}}</td>
+                <td>{{a.key}}</td>
+                <td>{{a.user}}</td>
+<!--                <td><button ng-click="next(a.databaseName)">NEXT</button></td>-->
+                <td><a ng-href="/html/show.html?databaseName={{a.databaseName}}&databaseId={{a.id}}">NEXT</a></td>
+
+            </tr>
+        </table>
+
+    </div>
+    <script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
+    <script src="https://cdn.staticfile.org/angular.js/1.7.0/angular-route.min.js"></script>
+    <script>
+        var app = angular.module("myApp",[]);
+        // var search = $location.search();
+        app.controller("myCtrl",function($scope,$http){
+            $http({
+                method:'get',
+                url:"/findInfo"
+            }).then(function success(result){
+                    $scope.arr=result.data;
+                },
+            );
+        });
+    </script>
+</body>
+
+</html>

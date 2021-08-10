@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+
+<div>
+    <table border="1" width="500px" align="center">
+        <tr>
+            <td>Data Model Name</td>
+        </tr>
+        <tr ng-repeat=" a in arr"   >
+            <td><button ng-click="show(a.tableName)">{{a.tableName}}</button></td>
+        </tr>
+    </table>
+    <br/>
+    <table ng-view border="1" width="500px" align="center">
+        <tr>
+            <td>Field Name</td>
+            <td>Field Type</td>
+        </tr>
+
+        <tr ng-repeat=" a in arr2" >
+            <td><input type="checkbox" ng-checked="isSelected(a.columnName,a.dataType)"
+                       ng-click="updateSelection($event,a.columnName,a.dataType)">{{a.columnName}}</td>
+            <td>{{a.dataType}}</td>
+        </tr>
+        <input type="text" placeholder="input new_name" ng-model="newName">
+        <button ng-click="save(newName)">SAVE</button>
+    </table>
+    <br/>
+
+
+
+<!--    {{repositoryId|json}}<br/>-->
+    {{list|json}}<br/>
+    {{selectedColumnName|json}}<br/>
+
+
+</div>
+
+<script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
+<script src="https://cdn.staticfile.org/angular.js/1.7.0/angular-route.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    var app = angular.module("myApp",[]);
+    app.config(['$locationProvider', function($locationProvider) {
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        });
+    }]);
+    app.controller("myCtrl", function ($scope, $http, $location){
+        var tableName = $location.search().databaseName;
+        var tableId = $location.search().databaseId;
+        //自动提交ajax repeat出系统表
+        $http({
+            method:'get',
+            params: {tableName : tableName},
+            url:"/alltablename"
+        }).then(function success(result1){
+                $scope.arr=result1.data;
+            },
+        );
+
+        //点击系统表按钮，提交ajax返回表基本信息
+        $scope.show = function (tableName){
+            $scope.singletable = tableName;
+            $http({
+                method:'get',
+                params: {anyName : tableName},
+                url:"/detail"
+            }).then(function success(result2){
+                $scope.arr2 = result2.data;
+                $scope.list = [];
+                $scope.selectedColumnName = [];
+
+            });
+        }
+
+        //复选框功能
+        //定义数组
+        $scope.save = function(newName){
+            $scope.fieldName = {};
+            $scope.fieldName.repositoryId = tableId;
+            $scope.fieldName.dataModelName = newName;
+            $scope.fieldName.selectTable =  $scope.singletable;
+            $scope.fieldName.tableList = $scope.list;
+            // var data = {repositoryId : $scope.fieldName.repositoryId,
+            //     orginName : $scope.fieldName.orginName,
+            //     newName   : $scope.fieldName.newName,
+            //     tableList : $scope.fieldName.tableList
+            $http({
+                method: 'post',
+                // contentType: "application/json",
+                // contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                // data: JSON.stringify(data),
+                data: $scope.fieldName,
+                url: "/insertviewtable",
+            }).then(function success(result){
+                $scope.infoId = result.data;
+                var url = "/html/selectinfo.html?id="+$scope.infoId+
+                    "&repositoryId=" + $scope.fieldName.repositoryId;
+                window.location.href = url;
+            });
+        };
+
+        //利用数组数据结构，判断复选框是否已被选中 indexOf输出位置，从0开始 >=0则存在，否则为-1
+        $scope.isSelected = function(columnName){
+            //indexOf遍历查找数组中的元素，并返回所在为位置
+            return $scope.selectedColumnName.indexOf(columnName) >=0;
+        }
+        $scope.updateSelection = function($event, columnName,dataType){
+
+            var checkbox = $event.target;
+            var action = (checkbox.checked?'add':'remove');
+            $scope.updateSelected(action,columnName,dataType);
+        }
+        $scope.updateSelected = function(action,columnName,dataType){
+            if(action == 'add' && $scope.selectedColumnName.indexOf(columnName) == -1){
+                $scope.selectedColumnName.push(columnName);
+                //将成对的数据采用对象的形式存储，push进入list，采用动态的key，value创建对象
+                $scope.o = {};
+                $scope.o.columnName = columnName;
+                $scope.o.dataType = dataType;
+                $scope.list.push($scope.o);
+                $scope.o = {};
+            }
+            if(action == 'remove' &&  $scope.selectedColumnName.indexOf(columnName) != -1){
+                var idx = $scope.selectedColumnName.indexOf(columnName);
+                //splice根据位置删除数组中的元素，后面的参数为范围，默认为1，
+                $scope.selectedColumnName.splice(idx,1);
+                let length = $scope.list.length;
+                for (let i = 0;i < length;i++){
+                    if ( $scope.list[i].columnName == columnName){
+                        $scope.list.splice(i,1);
+                    }
+                }
+            }
+        }
+    });
+</script>
+</body>
+
+</html>

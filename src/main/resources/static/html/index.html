@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    function myclick(){
+        var user = $("#user").val();
+        var key = $("#key").val();
+        $.post("/loginIn",
+            {
+                User: user,
+                Key: key
+            },function(data){
+            if(data == "loginsuccess"){
+                window.location.href = "/html/showdatabase.html";
+            }else{
+                alert("输入错误")
+            }
+            });
+    }
+</script>
+<body>
+    账号：<input type="text" id="user" name="user"><br>
+    密码：<input type="password" id="key" name="key"><br>
+    <button onclick="myclick()">login</button>
+</body>
+</html>

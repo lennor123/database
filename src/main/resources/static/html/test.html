@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+<div align="left">
+    <table>
+        <tr>
+            <td>{{a.tName}}</td>
+            <td>{{a.tAge}}</td>
+            <td>{{a.tClass}}</td>
+            <td>{{a.tId}}</td>
+        </tr>
+        <tr>
+            <td>{{b.sClass}}</td>
+            <td>{{b.sAge}}</td>
+            <td>{{b.sName}}</td>
+            <td>{{b.sId}}</td>
+        </tr>
+        <tr>
+            <td><button ng-click="click1()">111111</button></td>
+            <td><button ng-click="click2()">222222</button></td>
+        </tr>
+
+    </table>
+</div>
+
+<script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
+<script>
+    var app = angular.module("myApp",[]);
+    app.controller("myCtrl", function ($scope, $http,){
+
+
+        $scope.click1 = function (){
+            $http({
+                method:'get',
+                url:"/findAll1"
+            }).then(function success(result1){
+                $scope.a=result1.data;
+            });
+        }
+        $scope.click2 = function (){
+            $http({
+                method:'get',
+                url:"/findAll2"
+            }).then(function success(result2){
+                $scope.b=result2.data;
+            });
+        }
+
+    });
+</script>
+</body>
+
+</html>

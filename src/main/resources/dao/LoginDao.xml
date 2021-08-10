@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.database.dao.LoginDao">
+    
+    <resultMap id="BaseResultMap_table" type="table">
+        <result column="table_name" property="tableName" ></result>
+    </resultMap>
+
+    <resultMap id="BaseResultMap_det" type="det">
+        <result column="column_name" property="columnName" ></result>
+        <result column="data_type" property="dataType" ></result>
+    </resultMap>
+
+    <resultMap id="BaseResultMap_repository" type="repository">
+        <result column="database_name" property="databaseName" ></result>
+    </resultMap>
+
+
+
+
+
+    <select id="getInfo" parameterType="String" resultType="com.example.database.entity.User">
+        SELECT * FROM user where `Key` = #{User} and `User` = #{Key}
+    </select>
+
+    <select id="findInfo" parameterType="String" resultMap="BaseResultMap_repository">
+        SELECT * FROM repository
+    </select>
+
+    <select id="alltablename" parameterType="String" resultMap="BaseResultMap_table">
+        select table_name FROM information_schema.tables where table_schema=#{tableName};
+    </select>
+
+    <select id="detail" parameterType="String" resultMap="BaseResultMap_det">
+        select column_name ,data_type
+        from information_schema.columns
+        where table_name=#{anyName} and table_schema="mysmart"  ORDER BY data_type;
+    </select>
+
+    <insert id="insertsetp1" parameterType="com.example.database.entity.Insert" useGeneratedKeys="true" keyProperty="id">
+        insert into data_model values(null,#{insert.selectTable   },#{insert.dataModelName},#{insert.newRepositoryId})
+    </insert>
+
+    <insert id="insertsetp2" parameterType = "com.example.database.entity.Insert">
+        insert into data_model_field
+        (id,field_name,field_type,model_view_id)
+        values
+        <foreach collection="tableList" item="item" separator="," >
+            (null,#{item.columnName},#{item.dataType},#{id})
+        </foreach>
+    </insert>
+
+    <select id="findRepositoryInfo" parameterType="int" resultType="com.example.database.entity.Repository">
+        select *  from repository
+        where id = #{id}
+    </select>
+
+<!--    <select id="findFieldsInfo" parameterType="int" resultType="com.example.database.entity.Field">-->
+<!--        select field_name ,field_type-->
+<!--        from data_model_field-->
+<!--        where model_view_id=#{id}-->
+<!--    </select>-->
+    <select id="findDataModelInfo" parameterType="String" resultType="com.example.database.entity.Repository">
+        SELECT data_model.id,data_model_name,repository from data_model ,repository
+        where data_model.repository_id = repository.id
+    </select>
+
+    <select id="findFieldInfo" parameterType="int" resultType="com.example.database.entity.Field">
+        select field_name ,field_type
+        from data_model_field
+        where model_view_id = #{id}
+    </select>
+</mapper>
