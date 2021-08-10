@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-//@AutoConfigureOrder(1)
+@AutoConfigureOrder(1)
 public class DatabaseConfig2 implements BeanDefinitionRegistryPostProcessor {
 
     ApplicationContext applicationContext;
